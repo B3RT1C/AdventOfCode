@@ -4,19 +4,20 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class Part1 {
+public class Part2 {
     public static void main(String[] args) throws IOException {
         HashMap<String, List<String>> dependenciesMap = new HashMap<>();
         List<List<String>> updates = new ArrayList<>();
         List<List<String>> invalidUpdates = new ArrayList<>();
+        List<List<String>> orderedUpdates = new ArrayList<>();
 
         getData(dependenciesMap, updates);
 
         getInvalidUpdates(updates, invalidUpdates, dependenciesMap);
 
-        filterValidUpdates(updates, invalidUpdates);
+        iDontKnowIfImReadyForDaySix(invalidUpdates, orderedUpdates, dependenciesMap);
 
-        System.out.println(getSumMiddle(updates));
+        System.out.println(getSumMiddle(orderedUpdates));
     }
 
     public static void getData(HashMap<String, List<String>> dependenciesMap, List<List<String>> updates) {
@@ -89,12 +90,6 @@ public class Part1 {
         }
     }
 
-    public static void filterValidUpdates(List<List<String>> updates, List<List<String>> invalidUpdates) {
-        for (List<String> invalidPahesToUpdate : invalidUpdates) {
-            updates.remove(invalidPahesToUpdate);
-        }
-    }
-
     public static int getSumMiddle(List<List<String>> updates) {
         int sumMiddle = 0;
         for (List<String> s : updates) {
@@ -105,6 +100,43 @@ public class Part1 {
         }
 
         return sumMiddle;
+    }
+
+    public static void iDontKnowIfImReadyForDaySix(List<List<String>> invalidUpdates, List<List<String>> orderedUpdates, HashMap<String, List<String>> dependenciesMap) {
+        for (List<String> pagesToOrder : invalidUpdates) {
+
+            List<String> orderedPages = new ArrayList<>();
+            for (String pageToOrder : pagesToOrder) {
+
+                if (orderedPages.isEmpty()) {
+                    orderedPages.add(pageToOrder);
+
+                } else {
+
+                    List<String> dependants = dependenciesMap.get(pageToOrder);
+                    int lowestDependantIndex = -2;
+                    if (dependants != null) {
+                        for (int i = 0; i < dependants.size() && lowestDependantIndex != 0; i++) {
+
+                            int dependantIndex = orderedPages.indexOf(dependants.get(i));
+                            if ((lowestDependantIndex > dependantIndex || lowestDependantIndex == -2) && dependantIndex != -1) {
+                                lowestDependantIndex = dependantIndex;
+                            }
+                        }
+                    }
+
+                    //lowestDependantIndex == -1 || == -2
+                    if (lowestDependantIndex < 0) {
+                        orderedPages.add(pageToOrder);
+                    } else {
+                        orderedPages.add(lowestDependantIndex, pageToOrder);
+                    }
+
+                }
+            }
+
+            orderedUpdates.add(orderedPages);
+        }
     }
 
 }
